@@ -17,6 +17,16 @@ bluetooth.onBluetoothDisconnected(function () {
 })
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () {
     msg = bluetooth.uartReadUntil(serial.delimiters(Delimiters.NewLine))
+    if (msg == "a") {
+        stopDrive()
+        music.play(music.builtinPlayableSoundEffect(soundExpression.giggle), music.PlaybackMode.InBackground)
+        basic.showIcon(IconNames.Rabbit)
+    }
+    if (msg == "b") {
+        stopDrive()
+        music.play(music.builtinPlayableSoundEffect(soundExpression.happy), music.PlaybackMode.InBackground)
+        basic.showIcon(IconNames.Rollerskate)
+    }
     if (msg == "mode_dpad") {
         mode = 0
         stopDrive()
@@ -49,6 +59,22 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.NewLine), function () 
         }
         if (mode == 1 || mode == 2) {
             parseAndDriveAxes(msg)
+        }
+        // suwaki (c000..180, x000..180)
+        if (msg.substr(0, 1) == "x") {
+            slider = parseFloat(msg.substr(1, 3))
+            led.plotBarGraph(
+            slider,
+            180
+            )
+            pins.servoWritePin(AnalogPin.P2, slider)
+        }
+        if (msg.substr(0, 1) == "c") {
+            slider = parseFloat(msg.substr(1, 3))
+            led.plotBarGraph(
+            slider,
+            180
+            )
         }
     }
 })
@@ -86,6 +112,7 @@ let right = 0
 let left = 0
 let y = 0
 let x = 0
+let slider = 0
 let mode = 0
 let msg = ""
 function setOneMotor(which: motor.Motors, speed: number) {
@@ -104,6 +131,8 @@ function setOneMotor(which: motor.Motors, speed: number) {
         motor.MotorRun(which, motor.Dir.CW, 0)
     }
 }
-basic.showIcon(IconNames.SmallDiamond)
+music.play(music.builtinPlayableSoundEffect(soundExpression.hello), music.PlaybackMode.InBackground)
+basic.showString("PIZZA")
+basic.showIcon(IconNames.Heart)
 bluetooth.startUartService()
 stopDrive()
